@@ -8,9 +8,6 @@
         <label class="value">{{item.value}}</label>
       </li>
     </ul>
-
-    <div class="row">{{attack}}</div>
-    <div class="row">{{defend}}</div>
   </div>
 </template>
 
