@@ -2,7 +2,7 @@
   <div class="indicator">
     <h2>Attack Indicator</h2>
     <ul>
-      <li v-bind:key="item.id" v-for="(item,index) in items">
+      <li v-bind:key="item.id" v-for="(item,index) in dataItems">
         <!-- <label class="index">{{index}}</label> -->
         <label class="name">{{item.name}}</label>
         <label class="value">{{item.value}}</label>
@@ -13,26 +13,23 @@
 
 <script lang="ts">
 import Vue from "vue";
+import { mapState } from "vuex";
 export default Vue.extend({
   name: "AttackIndicator",
   data() {
-    return {
-      attack: 40,
-      defend: 20,
-      items: [
-        {
-          id: 1,
-          name: "attack",
-          value: 20
-        },
-        {
-          id: 2,
-          name: "defend",
-          value: 30
-        }
-      ]
-    };
-  }
+    return {};
+  },
+  computed: mapState({
+    dataItems: function(this: Vue) {
+      return this.$store.state.dataItems;
+    },
+    selectedGearList: function(this: Vue) {
+      return this.$store.state.selectedGearList;
+    },
+    selectedCharacterName: function(this: Vue) {
+      return this.$store.state.selectedCharacterName;
+    }
+  })
 });
 </script>
 
@@ -83,8 +80,8 @@ export default Vue.extend({
     }
   }
 
-  h2{
-      font-size: 20px;
+  h2 {
+    font-size: 20px;
   }
 }
 </style>

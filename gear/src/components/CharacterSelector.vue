@@ -5,8 +5,8 @@
       <li
         v-bind:key="character.id"
         v-for="character in characters"
-        v-bind:class="{selected: character.name==selectedCharacter}"
-        v-on:click="()=>{selectedCharacter=character.name}"
+        v-bind:class="{selected: character.name==selectedCharacterName}"
+        v-on:click="()=>{updateCharacter(character.name)}"
       >{{character.name}}</li>
     </ul>
   </div>
@@ -14,22 +14,33 @@
 
 <script lang="ts">
 import Vue from "vue";
+import Vuex from "vuex";
+Vue.use(Vuex)
+
+
 export default Vue.extend({
   name: "CharacterSelector",
   data() {
     return {
-      characters: [
-        {
-          id: 0,
-          name: "taihou"
-        },
-        {
-          id: 1,
-          name: "shigure"
-        }
-      ],
-      selectedCharacter: "shigure"
+      
     };
+  },
+  computed:{
+    selectedCharacterName():string{
+      return this.$store.state.selectedCharacterName
+    },
+    characters():any{
+      return this.$store.state.characters
+    }
+  },
+  methods:{
+    updateCharacter:function(name:string){
+      this.$store.commit("selectCharacter", name)
+    },
+    log:function(this:Vue){console.log(this.$store.state.selectedCharacterName)}
+  },
+  created(){
+    console.log(this)
   }
 });
 </script>

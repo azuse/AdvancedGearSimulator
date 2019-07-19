@@ -5,7 +5,7 @@
     <label for="">gear selected</label>
     <ul>
         <transition-group name="fade">
-          <li class="gear" v-bind:key="gear.index" v-for="gear in selected_gears" v-on:click="removeGear(gear.index)">
+          <li class="gear" v-bind:key="gear.index" v-for="gear in selectedGearList" v-on:click="removeGear(gear.index)">
             <label class="name">{{gear.name}}</label>
             <label class="effect">attack: {{gear.effect.attack}} defend:{{gear.effect.defend}}</label>
           </li>
@@ -28,48 +28,32 @@ export default Vue.extend({
     name:"GearSelector",
     data(){
       return{
-        gears:[
-          {
-            id:0,
-            name: "a gun",
-            effect:{
-              attack:10,
-              defend:0
-            }
-          },
-          {
-            id:1,
-            name: "a shield",
-            effect:{
-              attack:0,
-              defend:10
-            }
-          }
-        ],
-        selected_gears: [] as any[],
-        max_gear_num:2
+      }
+    },
+    computed:{
+      selectedGearList():any[]{
+        return this.$store.state.selectedGearList
+      },
+      gears():any{
+        return this.$store.state.gears
       }
     },
     methods:{
       gearSelect:function(gear:object){
-        if(this.selected_gears.length < 2){
+        if (this.$store.state.selectedGearList.length < this.$store.state.maxGearNum){
           let tmp = JSON.parse(JSON.stringify(gear))
-          tmp.index = this.selected_gears.length
-          this.selected_gears.push(tmp)
-        
+          tmp.index = this.$store.state.selectedGearList.length
+          this.$store.commit("addGear",tmp)
+                    
         }
-        else
-          console.log("max gear num reached!")
+        else console.log("max gear num reached");
       },
 
-      removeGear:function(gearindex:number){
-        this.selected_gears.forEach((element,index) => {
-          if(element.index == gearindex)
-            this.selected_gears.splice(index,1)
-        });
+      removeGear:function(gearIndex:number){
+        this.$store.state.selectedGearList.forEach((element:any, index:number) => {
+        if (element.index == gearIndex) this.$store.commit("removeGear",gearIndex)
+      });
       }
-
-
     }
 })
 </script>
