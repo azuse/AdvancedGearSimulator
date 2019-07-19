@@ -6,6 +6,7 @@
       <AttackIndicator/>
       <CharacterSelector/>
       <GearSelector/>
+      <div class="divider" style="width:100%;"></div>
       <EffectDeclarer/>
       <div id="gear-selector"></div>
     </div>
@@ -75,7 +76,9 @@ const store = new Vuex.Store({
           defend: 10
         }
       }
-    ]
+    ],
+    elementsName: ["attack", "defend"],
+    effects: [{ name: "ATTACK", formula: "attack*10" }]
   },
   mutations: {
     selectCharacter: (state, character) =>
@@ -89,6 +92,35 @@ const store = new Vuex.Store({
     updateData(state, obj: any) {
       state.dataItems[0].value = obj.attack;
       state.dataItems[1].value = obj.defend;
+    },
+    removeElement(state, elementName: string) {
+      state.elementsName.forEach((element, index) => {
+        if (element == elementName) {
+          state.elementsName.splice(index, 1);
+        }
+      });
+    },
+    addElement(state, elementName: string) {
+      let keyduplicate = 0;
+      state.elementsName.forEach(element => {
+        if (element == elementName) keyduplicate = 1;
+      });
+      if (keyduplicate) return;
+      state.elementsName.push(elementName);
+    },
+    removeEffect(state, effectName:string){
+      state.effects.forEach((effect,index)=>{
+        if(effect.name == effectName)
+          state.effects.splice(index,1)
+      })
+    },
+    addEffect(state, obj){
+      let keyduplicate = 0;
+      state.effects.forEach(element=>{
+        if(element.name == obj.effectName)keyduplicate = 1
+      })
+      if(keyduplicate == 1)return
+      state.effects.push({name:obj.effectName, formula:obj.formula})
     }
   }
 });
@@ -138,17 +170,20 @@ export default Vue.extend({
     }
   },
   methods: {
-    calculateData: function(selectedGearList: any[], selectedCharacterName: any) {
+    calculateData: function(
+      selectedGearList: any[],
+      selectedCharacterName: any
+    ) {
       let attack_new = 0;
       let defend_new = 0;
       selectedGearList.forEach(element => {
         attack_new += element.effect.attack;
         defend_new += element.effect.defend;
       });
-      let selectCharacter = this.$store.state.characters[0]
+      let selectCharacter = this.$store.state.characters[0];
       this.$store.state.characters.forEach(element => {
         if (element.name == selectedCharacterName) {
-          selectCharacter = element
+          selectCharacter = element;
         }
       });
       attack_new += selectCharacter.effect.attack;
