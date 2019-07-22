@@ -7,7 +7,7 @@
         <transition-group name="fade">
           <li class="gear" v-bind:key="gear.index" v-for="gear in selectedGearList" v-on:click="removeGear(gear.index)">
             <label class="name">{{gear.name}}</label>
-            <label class="effect">attack: {{gear.effect.attack}} defend:{{gear.effect.defend}}</label>
+            <label class="element">attack: {{gear.element.attack}} defend:{{gear.element.defend}}</label>
           </li>
         </transition-group>
     </ul>
@@ -16,7 +16,7 @@
     <ul>
       <li class="gear" v-bind:key="gear.id" v-for="gear in gears" v-on:click="gearSelect(gear)">
         <label class="name">{{gear.name}}</label>
-        <label class="effect">attack: {{gear.effect.attack}} defend:{{gear.effect.defend}}</label>
+        <label class="element">attack: {{gear.element.attack}} defend:{{gear.element.defend}}</label>
       </li>
     </ul>
   </div>

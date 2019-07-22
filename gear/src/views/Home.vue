@@ -24,6 +24,12 @@ import Vuex from "vuex";
 import { mapState } from "vuex";
 Vue.use(Vuex);
 
+const initalValElement = 10
+
+interface element {
+    [key:string]: any; // Add index signature
+}
+
 const store = new Vuex.Store({
   state: {
     selectedCharacterName: "shigure",
@@ -45,7 +51,7 @@ const store = new Vuex.Store({
       {
         id: 0,
         name: "taihou",
-        effect: {
+        element: {
           attack: 10,
           defend: 0
         }
@@ -53,7 +59,7 @@ const store = new Vuex.Store({
       {
         id: 1,
         name: "shigure",
-        effect: {
+        element: {
           attack: 0,
           defend: 10
         }
@@ -63,7 +69,7 @@ const store = new Vuex.Store({
       {
         id: 0,
         name: "a gun",
-        effect: {
+        element: {
           attack: 10,
           defend: 0
         }
@@ -71,7 +77,7 @@ const store = new Vuex.Store({
       {
         id: 1,
         name: "a shield",
-        effect: {
+        element: {
           attack: 0,
           defend: 10
         }
@@ -107,6 +113,14 @@ const store = new Vuex.Store({
       });
       if (keyduplicate) return;
       state.elementsName.push(elementName);
+
+      state.gears.forEach(gear=>{
+        for(let [key,value] of Object.entries(gear.element)){
+          if(typeof(state.elementsName.find((element)=>{return element==key}))!==undefined){
+            gear.element[elementName] = 0
+          }
+        }
+      })
     },
     removeEffect(state, effectName:string){
       state.effects.forEach((effect,index)=>{
@@ -121,6 +135,17 @@ const store = new Vuex.Store({
       })
       if(keyduplicate == 1)return
       state.effects.push({name:obj.effectName, formula:obj.formula})
+    },
+    updateDateItems(state, effectsList){
+      effectsList.forEach((element,index) => {
+        let formula:string = element.formula
+        state.elementsName.forEach((element,index)=>{
+          let val:number = 0
+          formula.replace(element, state.dataItems)
+        })
+        state.dataItems.push({index:index,name:element.name,value:eval(element.formula.rep)})
+      });
+
     }
   }
 });
@@ -134,6 +159,7 @@ const store = new Vuex.Store({
 //   },
 //   store:store
 // })
+
 
 export default Vue.extend({
   name: "Home",
@@ -167,6 +193,11 @@ export default Vue.extend({
       handler(newCh, oldCh) {
         this.calculateData(this.$store.state.selectedGearList, newCh);
       }
+    },
+    effects:{
+      handler(newList, oldList){
+        
+      }
     }
   },
   methods: {
@@ -176,18 +207,18 @@ export default Vue.extend({
     ) {
       let attack_new = 0;
       let defend_new = 0;
-      selectedGearList.forEach(element => {
-        attack_new += element.effect.attack;
-        defend_new += element.effect.defend;
+      selectedGearList.forEach(gear => {
+        attack_new += gear.element.attack;
+        defend_new += gear.element.defend;
       });
       let selectCharacter = this.$store.state.characters[0];
-      this.$store.state.characters.forEach(element => {
-        if (element.name == selectedCharacterName) {
-          selectCharacter = element;
+      this.$store.state.characters.forEach(ch => {
+        if (ch.name == selectedCharacterName) {
+          selectCharacter = ch;
         }
       });
-      attack_new += selectCharacter.effect.attack;
-      defend_new += selectCharacter.effect.defend;
+      attack_new += selectCharacter.element.attack;
+      defend_new += selectCharacter.element.defend;
       console.log(attack_new, defend_new);
       store.commit({
         type: "updateData",
