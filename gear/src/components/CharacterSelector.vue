@@ -3,11 +3,33 @@
     <h2>Character Selector</h2>
     <ul>
       <li
-        v-bind:key="character.id"
+        v-bind:key="character.name"
         v-for="character in characters"
         v-bind:class="{selected: character.name==selectedCharacterName}"
         v-on:click="()=>{updateCharacter(character.name)}"
-      >{{character.name}}</li>
+      >
+        {{character.name}}
+        <ul>
+          <li
+            v-bind:key="value"
+            v-for="(value, name, index) in character.element"
+            style="background:transparent" 
+            
+          >
+            <label @dblclick="edit[index]= true">{{name}}: </label>
+            <div v-show="edit[index] == false" style="display:inline-block">
+              <label @dblclick="edit[index] = true;">{{value}}</label>
+            </div>
+            <input
+              type="number"
+              v-show="edit[index] == true"
+              v-model="character.element[index]"
+              v-on:blur="edit[index]=false; $emit('update')"
+              @keyup.enter="edit[index]=false; $emit('update')"
+            >
+          </li>
+        </ul>
+      </li>
     </ul>
   </div>
 </template>
@@ -15,32 +37,33 @@
 <script lang="ts">
 import Vue from "vue";
 import Vuex from "vuex";
-Vue.use(Vuex)
-
+Vue.use(Vuex);
 
 export default Vue.extend({
   name: "CharacterSelector",
   data() {
     return {
-      
+      edit: Array(1000).fill(false)
     };
   },
-  computed:{
-    selectedCharacterName():string{
-      return this.$store.state.selectedCharacterName
+  computed: {
+    selectedCharacterName(): string {
+      return this.$store.state.selectedCharacterName;
     },
-    characters():any{
-      return this.$store.state.characters
+    characters(): any {
+      return this.$store.state.characters;
     }
   },
-  methods:{
-    updateCharacter:function(name:string){
-      this.$store.commit("selectCharacter", name)
+  methods: {
+    updateCharacter: function(name: string) {
+      this.$store.commit("selectCharacter", name);
     },
-    log:function(this:Vue){console.log(this.$store.state.selectedCharacterName)}
+    log: function(this: Vue) {
+      console.log(this.$store.state.selectedCharacterName);
+    }
   },
-  created(){
-    console.log(this)
+  created() {
+    console.log(this);
   }
 });
 </script>
@@ -53,7 +76,7 @@ export default Vue.extend({
     li {
       @extend .row;
       background-color: gray;
-      padding-bottom: 10px;
+      // padding-bottom: 10px;
       padding-top: 10px;
       margin-bottom: 5px;
       border-radius: 5px;
@@ -64,8 +87,13 @@ export default Vue.extend({
     }
   }
 
-  h2{
-      font-size: 20px;
+  label{
+    color:rgb(53, 53, 53);
+    font-size: 15px;
+  }
+
+  h2 {
+    font-size: 20px;
   }
 }
 </style>

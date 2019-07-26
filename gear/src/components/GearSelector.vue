@@ -1,103 +1,117 @@
 <template>
   <div class="gear-selector">
     <h2>Gear Selector</h2>
-    
-    <label for="">gear selected</label>
+
+    <label for>gear selected</label>
     <ul>
-        <transition-group name="fade">
-          <li class="gear" v-bind:key="gear.index" v-for="gear in selectedGearList" v-on:click="removeGear(gear.index)">
-            <label class="name">{{gear.name}}</label>
-            <label class="element">attack: {{gear.element.attack}} defend:{{gear.element.defend}}</label>
-          </li>
-        </transition-group>
+      <transition-group name="fade">
+        <li
+          class="gear"
+          v-bind:key="gear.index"
+          v-for="gear in selectedGearList"
+          v-on:click="removeGear(gear.index)"
+        >
+          <label class="name">{{gear.name}}</label>
+          <label class="element">
+            <ul>
+              <li v-bind:key="name" v-for="(value, name) in gear.element">{{name}}: {{value}}</li>
+            </ul>
+          </label>
+        </li>
+      </transition-group>
     </ul>
 
-    <label for="">gear for select</label>
+    <label for>gear for select</label>
     <ul>
-      <li class="gear" v-bind:key="gear.id" v-for="gear in gears" v-on:click="gearSelect(gear)">
+      <li class="gear" v-bind:key="gear.name" v-for="gear in gears" v-on:click="gearSelect(gear)">
         <label class="name">{{gear.name}}</label>
-        <label class="element">attack: {{gear.element.attack}} defend:{{gear.element.defend}}</label>
+        <label class="element">
+          <ul>
+            <li v-bind:key="name" v-for="(value, name) in gear.element">{{name}}: {{value}}</li>
+          </ul>
+        </label>
       </li>
     </ul>
   </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue";
 export default Vue.extend({
-    name:"GearSelector",
-    data(){
-      return{
-      }
+  name: "GearSelector",
+  data() {
+    return {};
+  },
+  computed: {
+    selectedGearList(): any[] {
+      return this.$store.state.selectedGearList;
     },
-    computed:{
-      selectedGearList():any[]{
-        return this.$store.state.selectedGearList
-      },
-      gears():any{
-        return this.$store.state.gears
-      }
-    },
-    methods:{
-      gearSelect:function(gear:object){
-        if (this.$store.state.selectedGearList.length < this.$store.state.maxGearNum){
-          let tmp = JSON.parse(JSON.stringify(gear))
-          tmp.index = this.$store.state.selectedGearList.length
-          this.$store.commit("addGear",tmp)
-                    
-        }
-        else console.log("max gear num reached");
-      },
-
-      removeGear:function(gearIndex:number){
-        this.$store.state.selectedGearList.forEach((element:any, index:number) => {
-        if (element.index == gearIndex) this.$store.commit("removeGear",gearIndex)
-      });
-      }
+    gears(): any {
+      return this.$store.state.gears;
     }
-})
+  },
+  methods: {
+    gearSelect: function(gear: object) {
+      if (
+        this.$store.state.selectedGearList.length < this.$store.state.maxGearNum
+      ) {
+        let tmp = JSON.parse(JSON.stringify(gear));
+        tmp.index = Math.random();
+        this.$store.commit("addGear", tmp);
+      } else console.log("max gear num reached");
+    },
+
+    removeGear: function(gearIndex: number) {
+      this.$store.state.selectedGearList.forEach(
+        (element: any, index: number) => {
+          if (element.index == gearIndex)
+            this.$store.commit("removeGear", gearIndex);
+        }
+      );
+    }
+  }
+});
 </script>
 
 <style lang="scss" scoped>
-  .gear-selector{
-    @extend .col;
-    @extend .s4;
-    .gear{
-      background-color: rgb(0, 78, 78);
-      position: relative;
-      .name{
-        display: block;
-      }
-      .effect{
-
-      }
+.gear-selector {
+  @extend .col;
+  @extend .s4;
+  .gear {
+    background-color: rgb(0, 78, 78);
+    position: relative;
+    .name {
+      display: block;
     }
+    .effect {
+    }
+  }
 
-    ul{
-      padding: 5px;
+  ul {
+    padding: 5px;
+    border-radius: 5px;
+    padding-bottom: 0.1px;
+    li {
+      margin-bottom: 5px;
       border-radius: 5px;
-      padding-bottom: 0.1px;
-      li{
-        margin-bottom: 5px;
-        border-radius: 5px;
-      }
-    }
-
-    h2{
-      font-size: 20px;
     }
   }
 
-  .fade-enter-active{
-    transition: all 0.1s ease-in;
-
+  h2 {
+    font-size: 20px;
   }
+}
 
-  .fade-leave-active{
-    transition: all 0.1s ease-out;
-  }
+.fade-enter-active {
+  transition: all 0.1s ease-in;
+}
 
-  .fade-enter, .fade-leave-to{
-    opacity: 0;
-  }
+.fade-leave-active {
+  transition: all 0.1s ease-out;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
 </style>

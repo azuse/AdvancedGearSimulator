@@ -2,10 +2,11 @@
   <div class="indicator">
     <h2>Attack Indicator</h2>
     <ul>
-      <li v-bind:key="item.id" v-for="(item,index) in dataItems">
+      <li v-bind:key="item.name" v-for="(item,index) in effectsNameValue">
         <!-- <label class="index">{{index}}</label> -->
-        <label class="name">{{item.name}}</label>
-        <label class="value">{{item.value}}</label>
+          <label class="name">{{item.name}}</label>
+          <label class="value">{{item.value}}</label>
+          <label class="formula">{{item.formula}}</label>
       </li>
     </ul>
   </div>
@@ -20,8 +21,8 @@ export default Vue.extend({
     return {};
   },
   computed: mapState({
-    dataItems: function(this: Vue) {
-      return this.$store.state.dataItems;
+    effectsNameValue: function(this: Vue) {
+      return this.$store.getters.effectsNameValue;
     },
     selectedGearList: function(this: Vue) {
       return this.$store.state.selectedGearList;
@@ -56,6 +57,7 @@ export default Vue.extend({
       display: flex;
       justify-content: start;
       align-items: center;
+      flex-direction: column;
 
       .index {
         margin-right: 5px;
@@ -76,6 +78,10 @@ export default Vue.extend({
         font-size: 20px;
         color: rgb(145, 74, 74);
         margin-left: auto;
+      }
+      .formula {
+        display: block;
+        font-size: 12px;
       }
     }
   }

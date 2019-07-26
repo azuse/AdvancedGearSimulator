@@ -2,7 +2,7 @@
   <div class="effect-declarer">
     <div class="effect">
       <ul>
-        <li v-for="effect in effects" v-bind:key="effect.name">
+        <li v-for="effect in effectItems" v-bind:key="effect.name">
           <label>{{effect.name}}</label>
           <label>{{effect.formula}}</label>
           <a href="#!" class="btn btn-small" v-on:click="removeEffect(effect.name)">remove</a>
@@ -46,8 +46,8 @@ export default Vue.extend({
     elementsName: function(this: Vue) {
       return this.$store.state.elementsName;
     },
-    effects: function(this: Vue) {
-      return this.$store.state.effects;
+    effectItems: function(this: Vue) {
+      return this.$store.state.effectItems;
     }
   },
   methods: {

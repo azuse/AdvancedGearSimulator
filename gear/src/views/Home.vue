@@ -2,8 +2,6 @@
   <div class="home">
     <div class="container row">
       <AttackIndicator/>
-      <AttackIndicator/>
-      <AttackIndicator/>
       <CharacterSelector/>
       <GearSelector/>
       <div class="divider" style="width:100%;"></div>
@@ -20,36 +18,40 @@ import AttackIndicator from "@/components/AttackIndicator.vue";
 import CharacterSelector from "@/components/CharacterSelector.vue";
 import GearSelector from "@/components/GearSelector.vue";
 import EffectDeclarer from "@/components/EffectDeclarer.vue";
-import Vuex from "vuex";
+import Vuex,{ Store } from "vuex";
 import { mapState } from "vuex";
+import VuexPersistence from 'vuex-persist'
 Vue.use(Vuex);
 
-const initalValElement = 10
+const initalValElement = 10;
 
 interface element {
-    [key:string]: any; // Add index signature
+  [key: string]: any; // Add index signature
 }
 
-const store = new Vuex.Store({
+const vuexLocal = new VuexPersistence({
+  storage: window.localStorage
+})
+
+const store = new Vuex.Store<any>({
   state: {
     selectedCharacterName: "shigure",
     selectedGearList: [] as any[],
     maxGearNum: 2,
-    dataItems: [
+    effectItems: [
       {
-        id: 1,
-        name: "attack",
+        name: "ATTACK",
+        formula: "gear.attack * 10 + character.attack",
         value: 0
       },
       {
-        id: 2,
-        name: "defend",
+        name: "DEFEND",
+        formula: "gear.defend + character.defend",
         value: 0
       }
     ],
     characters: [
       {
-        id: 0,
         name: "taihou",
         element: {
           attack: 10,
@@ -57,7 +59,6 @@ const store = new Vuex.Store({
         }
       },
       {
-        id: 1,
         name: "shigure",
         element: {
           attack: 0,
@@ -67,7 +68,6 @@ const store = new Vuex.Store({
     ],
     gears: [
       {
-        id: 0,
         name: "a gun",
         element: {
           attack: 10,
@@ -75,7 +75,6 @@ const store = new Vuex.Store({
         }
       },
       {
-        id: 1,
         name: "a shield",
         element: {
           attack: 0,
@@ -83,8 +82,7 @@ const store = new Vuex.Store({
         }
       }
     ],
-    elementsName: ["attack", "defend"],
-    effects: [{ name: "ATTACK", formula: "attack*10" }]
+    elementsName: ["attack", "defend"]
   },
   mutations: {
     selectCharacter: (state, character) =>
@@ -96,11 +94,11 @@ const store = new Vuex.Store({
       state.selectedGearList.splice(index, 1);
     },
     updateData(state, obj: any) {
-      state.dataItems[0].value = obj.attack;
-      state.dataItems[1].value = obj.defend;
+      state.effectItems[0].value = obj.attack;
+      state.effectItems[1].value = obj.defend;
     },
     removeElement(state, elementName: string) {
-      state.elementsName.forEach((element, index) => {
+      state.elementsName.forEach((element:any, index:number) => {
         if (element == elementName) {
           state.elementsName.splice(index, 1);
         }
@@ -108,46 +106,150 @@ const store = new Vuex.Store({
     },
     addElement(state, elementName: string) {
       let keyduplicate = 0;
-      state.elementsName.forEach(element => {
+      state.elementsName.forEach((element:any) => {
         if (element == elementName) keyduplicate = 1;
       });
       if (keyduplicate) return;
       state.elementsName.push(elementName);
 
-      state.gears.forEach(gear=>{
-        for(let [key,value] of Object.entries(gear.element)){
-          if(typeof(state.elementsName.find((element)=>{return element==key}))!==undefined){
-            gear.element[elementName] = 0
+      state.gears.forEach((gear:any) => {
+        for (let [key, value] of Object.entries(gear.element)) {
+          if (
+            typeof state.elementsName.find((element:any) => {
+              return element == key;
+            }) !== undefined
+          ) {
+            Vue.set(gear.element, elementName, 0);
           }
         }
-      })
-    },
-    removeEffect(state, effectName:string){
-      state.effects.forEach((effect,index)=>{
-        if(effect.name == effectName)
-          state.effects.splice(index,1)
-      })
-    },
-    addEffect(state, obj){
-      let keyduplicate = 0;
-      state.effects.forEach(element=>{
-        if(element.name == obj.effectName)keyduplicate = 1
-      })
-      if(keyduplicate == 1)return
-      state.effects.push({name:obj.effectName, formula:obj.formula})
-    },
-    updateDateItems(state, effectsList){
-      effectsList.forEach((element,index) => {
-        let formula:string = element.formula
-        state.elementsName.forEach((element,index)=>{
-          let val:number = 0
-          formula.replace(element, state.dataItems)
-        })
-        state.dataItems.push({index:index,name:element.name,value:eval(element.formula.rep)})
       });
 
+      state.characters.forEach((character:any) => {
+        for (let [key, value] of Object.entries(character.element)) {
+          if (
+            typeof state.elementsName.find((element:any) => {
+              return element == key;
+            }) !== undefined
+          ) {
+            Vue.set(character.element, elementName, 0);
+          }
+        }
+      });
+    },
+    removeEffect(state, effectName: string) {
+      state.effectItems.forEach((effect:any, index:number) => {
+        if (effect.name == effectName) state.effectItems.splice(index, 1);
+      });
+    },
+    addEffect(state, obj) {
+      let keyduplicate = 0;
+      state.effectItems.forEach((element:any) => {
+        if (element.name == obj.effectName) keyduplicate = 1;
+      });
+      if (keyduplicate == 1) return;
+      state.effectItems.push({
+        name: obj.effectName,
+        formula: obj.formula,
+        value: 0
+      });
+    },
+    updateDateItems(state, effectsList) {
+      effectsList.forEach((effect:any, index:number) => {
+        let formula: string = effect.formula;
+
+        //calculate values
+        // gear
+        state.elementsName.forEach((element:any, index:number) => {
+          let val: number = 0;
+          formula.replace(
+            "gear." + element,
+            String(state.effectItems[index].value)
+          );
+        });
+        // character
+        state.elementsName.forEach((element:any, index:number) => {
+          let val: number = 0;
+          formula.replace(
+            "character." + element,
+            String(state.effectItems[index].value)
+          );
+        });
+
+        state.effectItems.push({
+          name: effect.name,
+          value: eval(formula),
+          formula: effect.formula
+        });
+      });
+    },
+    updateEffectValues(state) {
+      state.effectItems.forEach((effect:any, index:number) => {
+        let formula: string = effect.formula;
+
+        //calculate values
+        // gear
+        state.elementsName.forEach((element:any, index:number) => {
+          let val: number = 0;
+          formula.replace(
+            "gear." + element,
+            String(state.effectItems[index].value)
+          );
+        });
+        // character
+        state.elementsName.forEach((element:any, index:number) => {
+          let val: number = 0;
+          formula.replace(
+            "character." + element,
+            String(state.effectItems[index].value)
+          );
+        });
+
+        effect.value = eval(formula);
+      });
     }
-  }
+  },
+  getters: {
+    effectsNameValue: state => {
+      let tmp_effectsNameValue: any[] = [];
+      state.effectItems.forEach((effect:any, index:number) => {
+        let formula: string = effect.formula;
+
+        //calculate values
+        // gear
+        // gear.attack = SUM( foreach gear in selectedGearList { gear.attack } )
+        // gear.attack = MUL( foreach gear in selectedGearList { gear.attack } )
+        //
+        state.elementsName.forEach((element:any, index:number) => {
+          let val: number = 0;
+          state.selectedGearList.forEach((gear:any, index:number) => {
+            if (typeof gear.element[element] !== undefined)
+              val += gear.element[element];
+          });
+          formula = formula.replace("gear." + element, String(val));
+        });
+        // character
+        state.elementsName.forEach((element:any, index:number) => {
+          let val: number = 0;
+          state.characters.forEach((character:any) => {
+            if (character.name == state.selectedCharacterName)
+              val = character.element[element];
+          });
+          formula = formula.replace("character." + element, String(val));
+        });
+
+        effect.value = eval(formula);
+        tmp_effectsNameValue.push({
+          name: effect.name,
+          value: effect.value,
+          formula: effect.formula
+        });
+      });
+
+      return tmp_effectsNameValue;
+    }
+  },
+  plugins: [vuexLocal.plugin]
+
 });
 
 // @Component({
@@ -160,7 +262,6 @@ const store = new Vuex.Store({
 //   store:store
 // })
 
-
 export default Vue.extend({
   name: "Home",
   store,
@@ -172,8 +273,8 @@ export default Vue.extend({
     EffectDeclarer
   },
   computed: mapState({
-    dataItems: function(this: Vue) {
-      return this.$store.state.dataItems;
+    effectsNameValue: function(this: Vue) {
+      return this.$store.getters.effectsNameValue;
     },
     selectedGearList: function(this: Vue) {
       return this.$store.state.selectedGearList;
@@ -194,10 +295,8 @@ export default Vue.extend({
         this.calculateData(this.$store.state.selectedGearList, newCh);
       }
     },
-    effects:{
-      handler(newList, oldList){
-        
-      }
+    effects: {
+      handler(newList, oldList) {}
     }
   },
   methods: {
