@@ -15,7 +15,8 @@
             v-for="(value, name, index) in character.element"
             style="background:transparent"
           >
-          {{name}}:{{value}}
+            {{name}}:{{value}}
+            <input v-model="character.element[name]">
           </li>
         </ul>
       </li>
@@ -49,6 +50,9 @@ export default Vue.extend({
     },
     log: function(this: Vue) {
       console.log(this.$store.state.selectedCharacterName);
+    },
+    toggleEdit: function(index: number) {
+      this.edit[index] = !this.edit[index];
     }
   },
   created() {

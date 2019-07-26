@@ -24,6 +24,7 @@ import VuexPersistence from 'vuex-persist'
 Vue.use(Vuex);
 
 const initalValElement = 10;
+"use strict";
 
 interface element {
   [key: string]: any; // Add index signature
