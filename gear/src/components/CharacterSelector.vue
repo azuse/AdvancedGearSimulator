@@ -13,20 +13,9 @@
           <li
             v-bind:key="value"
             v-for="(value, name, index) in character.element"
-            style="background:transparent" 
-            
+            style="background:transparent"
           >
-            <label @dblclick="edit[index]= true">{{name}}: </label>
-            <div v-show="edit[index] == false" style="display:inline-block">
-              <label @dblclick="edit[index] = true;">{{value}}</label>
-            </div>
-            <input
-              type="number"
-              v-show="edit[index] == true"
-              v-model="character.element[index]"
-              v-on:blur="edit[index]=false; $emit('update')"
-              @keyup.enter="edit[index]=false; $emit('update')"
-            >
+          {{name}}:{{value}}
           </li>
         </ul>
       </li>
@@ -87,8 +76,8 @@ export default Vue.extend({
     }
   }
 
-  label{
-    color:rgb(53, 53, 53);
+  label {
+    color: rgb(53, 53, 53);
     font-size: 15px;
   }
 
